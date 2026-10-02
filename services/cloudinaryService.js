@@ -46,7 +46,7 @@ function buildAdUrl(publicId, prompt, width, height) {
   });
 }
 
-// Build a standard smart crop fallback URL
+// Build a standard smart-crop fallback URL
 function buildSmartCropUrl(publicId, width, height) {
   return cloudinary.url(publicId, {
     secure: true,
