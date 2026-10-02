@@ -1,4 +1,5 @@
 const multer = require('multer');
+const mongoose = require('mongoose');
 const Campaign = require('../models/Campaign');
 const {
   uploadWithAI,
@@ -13,7 +14,7 @@ const {
   getSuggestedPromptsFromTags
 } = require('../utils/promptBuilder');
 
-// Configure multer to store uploaded files in memory
+// Configure multer for in-memory uploads
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -27,12 +28,12 @@ const upload = multer({
   }
 }).single('image');
 
-// Export multer middleware
+// Expose upload middleware
 function uploadMiddleware(req, res, next) {
   upload(req, res, next);
 }
 
-// Generate a campaign, save it to MongoDB, and return the response
+// Generate a campaign and save it to MongoDB
 async function generateCampaign(req, res) {
   try {
     if (!req.file) {
@@ -47,7 +48,6 @@ async function generateCampaign(req, res) {
     const basePrompt = getBasePrompt(preset, customPrompt);
     const themePrompts = getThemePrompts(basePrompt);
 
-    // Convert uploaded image buffer to base64 data URI
     const b64 = Buffer.from(req.file.buffer).toString('base64');
     const dataURI = `data:${req.file.mimetype};base64,${b64}`;
 
@@ -67,7 +67,6 @@ async function generateCampaign(req, res) {
     let processingMode = 'Fallback Processing';
     let bgRemovedApplied = false;
 
-    // Try using Cloudinary AI add-ons first
     try {
       uploadResult = await uploadWithAI(dataURI, preset, basePrompt);
       moderationStatus = uploadResult.moderation?.[0]?.status || 'approved';
@@ -88,7 +87,6 @@ async function generateCampaign(req, res) {
 
     const publicId = uploadResult.public_id;
 
-    // Stop processing if moderation rejects the image
     if (moderationStatus === 'rejected') {
       return res.status(403).json({
         success: false,
@@ -97,28 +95,29 @@ async function generateCampaign(req, res) {
       });
     }
 
-    // Use preset-based fallback tags if AI tags are unavailable
     if (!autoTags.length) {
       autoTags = [preset, 'product', 'campaign-asset'];
     }
 
-    // Try background removal
     let bgRemovedUrl = uploadResult.secure_url;
     try {
       bgRemovedUrl = buildBgRemovedUrl(publicId);
       pipeline.backgroundRemoved = true;
       bgRemovedApplied = true;
     } catch (error) {
-      warnings.push('Background removal was unavailable, so the original product image is being used as a fallback preview.');
+      warnings.push(
+        'Background removal was unavailable, so the original product image is being used as a fallback preview.'
+      );
     }
 
-    // Build one themed asset group with safe fallback
     function buildThemeAssets(prompt) {
       function makeVariant(width, height) {
         try {
           return buildAdUrl(publicId, prompt, width, height);
         } catch (error) {
-          warnings.push(`Generative background was unavailable for ${width}x${height}, so smart crop fallback was used.`);
+          warnings.push(
+            `Generative background was unavailable for ${width}x${height}, so smart crop fallback was used.`
+          );
           return buildSmartCropUrl(publicId, width, height);
         }
       }
@@ -142,7 +141,6 @@ async function generateCampaign(req, res) {
 
     const suggestedPrompts = getSuggestedPromptsFromTags(autoTags, preset);
 
-    // Save the generated campaign into MongoDB
     const campaign = await Campaign.create({
       publicId,
       originalImage: uploadResult.secure_url,
@@ -200,7 +198,7 @@ async function generateCampaign(req, res) {
   }
 }
 
-// Return all saved campaigns
+// Get all campaigns
 async function getCampaigns(req, res) {
   try {
     const campaigns = await Campaign.find().sort({ createdAt: -1 }).limit(50);
@@ -218,10 +216,20 @@ async function getCampaigns(req, res) {
   }
 }
 
-// Return a single campaign by database ID
+// Get one campaign by ID safely
 async function getCampaignById(req, res) {
   try {
-    const campaign = await Campaign.findById(req.params.id);
+    const { id } = req.params;
+
+    // Validate MongoDB ObjectId before querying
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid campaign ID'
+      });
+    }
+
+    const campaign = await Campaign.findById(id);
 
     if (!campaign) {
       return res.status(404).json({
@@ -235,6 +243,7 @@ async function getCampaignById(req, res) {
       campaign
     });
   } catch (error) {
+    console.error('Get Campaign By ID Error:', error);
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to fetch campaign'
@@ -242,10 +251,19 @@ async function getCampaignById(req, res) {
   }
 }
 
-// Delete a campaign from MongoDB only
+// Delete a campaign from MongoDB
 async function deleteCampaign(req, res) {
   try {
-    const campaign = await Campaign.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid campaign ID'
+      });
+    }
+
+    const campaign = await Campaign.findByIdAndDelete(id);
 
     if (!campaign) {
       return res.status(404).json({
