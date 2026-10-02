@@ -1,0 +1,19 @@
+{
+  "name": "adcraft-ai-pro",
+  "version": "4.0.0",
+  "description": "AdCraft AI - Cloudinary AI media pipeline with MongoDB",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cloudinary": "^2.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "mongoose": "^8.18.0",
+    "multer": "^1.4.5-lts.2"
+  }
+}

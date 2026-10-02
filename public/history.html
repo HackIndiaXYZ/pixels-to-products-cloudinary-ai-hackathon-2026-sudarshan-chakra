@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campaign History - AdCraft AI Pro</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div>
+        <h1 class="brand">Campaign History</h1>
+        <p class="subtitle">Saved creative generations from MongoDB</p>
+      </div>
+      <nav class="nav-links">
+        <a href="/">Create</a>
+        <a href="/history">History</a>
+        <a href="/assets">Assets</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container history-page">
+    <div class="history-header">
+      <h2>Saved Campaigns</h2>
+      <button id="refreshHistoryBtn" class="small-btn">Refresh</button>
+    </div>
+
+    <div id="historyGrid" class="history-grid"></div>
+  </main>
+
+  <script src="history.js"></script>
+</body>
+</html>

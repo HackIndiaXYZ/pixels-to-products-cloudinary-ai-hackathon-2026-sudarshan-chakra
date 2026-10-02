@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asset Search - AdCraft AI Pro</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div>
+        <h1 class="brand">Asset Search</h1>
+        <p class="subtitle">Search Cloudinary-hosted campaign assets</p>
+      </div>
+      <nav class="nav-links">
+        <a href="/">Create</a>
+        <a href="/history">History</a>
+        <a href="/assets">Assets</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container history-page">
+    <div class="history-header">
+      <h2>Cloudinary Assets</h2>
+      <div class="search-row">
+        <input type="text" id="assetSearchInput" placeholder='e.g. tags=adcraft-ai' />
+        <button id="assetSearchBtn" class="small-btn">Search</button>
+      </div>
+    </div>
+
+    <div id="assetGrid" class="history-grid"></div>
+  </main>
+
+  <script src="assets.js"></script>
+</body>
+</html>

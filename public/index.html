@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AdCraft AI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div>
+        <h1 class="brand">AdCraft AI</h1>
+        <p class="subtitle">Autonomous commerce creative operating system</p>
+      </div>
+      <nav class="nav-links">
+        <a href="/">Create</a>
+        <a href="/history">History</a>
+        <a href="/assets">Assets</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container main-grid">
+    <section class="panel">
+      <h2>Create Campaign</h2>
+
+      <label for="imageInput" class="upload-box">
+        <input type="file" id="imageInput" accept="image/*" hidden />
+        <div id="uploadPlaceholder">
+          <p class="upload-title">Click to upload a raw product image</p>
+          <p class="upload-subtitle">Build a complete AI campaign pack</p>
+        </div>
+        <img id="imagePreview" class="image-preview hidden" alt="Preview" />
+      </label>
+
+      <div class="field-group">
+        <label for="presetSelect">Preset</label>
+        <select id="presetSelect">
+          <option value="custom">Custom</option>
+          <option value="beauty">Beauty</option>
+          <option value="fashion">Fashion</option>
+          <option value="electronics">Electronics</option>
+          <option value="food">Food</option>
+          <option value="jewelry">Jewelry</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="promptInput">Creative Prompt</label>
+        <input type="text" id="promptInput" placeholder="Enter a creative direction or use a preset" />
+        <button id="clearPromptBtn" class="small-btn secondary-inline" type="button">Clear Prompt</button>
+      </div>
+
+      <button id="generateBtn">Generate Campaign</button>
+
+      <div class="pipeline-box">
+        <h3>Pipeline</h3>
+        <ul id="pipelineStatus" class="pipeline-list">
+          <li data-step="uploaded">Uploaded</li>
+          <li data-step="moderated">Moderated</li>
+          <li data-step="tagged">Tagged</li>
+          <li data-step="backgroundRemoved">Background Removed</li>
+          <li data-step="generated">Generated</li>
+          <li data-step="optimized">Optimized</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel results-panel">
+      <div class="results-header">
+        <h2>Campaign Output</h2>
+        <span id="moderationBadge" class="status-badge neutral">Waiting</span>
+      </div>
+
+      <div id="loader" class="loader hidden">
+        <div class="spinner"></div>
+        <p>Building your campaign...</p>
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        Upload a raw product image to generate a studio-grade campaign pack.
+      </div>
+
+      <div id="resultsSection" class="hidden">
+        <div id="summaryCard" class="summary-card hidden"></div>
+
+        <div id="warningsBox" class="warnings-box hidden">
+          <h3>Warnings</h3>
+          <ul id="warningsList"></ul>
+        </div>
+
+        <div class="metadata-grid">
+          <div class="meta-box">
+            <h3>Metadata</h3>
+            <div id="metadataContent" class="metadata-content"></div>
+          </div>
+          <div class="meta-box">
+            <h3>Auto Tags</h3>
+            <div id="tagsContainer" class="tags"></div>
+          </div>
+        </div>
+
+        <div class="meta-box">
+          <h3>Suggested Prompts</h3>
+          <div id="suggestedPrompts" class="suggestions"></div>
+        </div>
+
+        <div class="compare-grid">
+          <div class="card">
+            <h3>Original Upload</h3>
+            <img id="originalImg" alt="Original image" />
+          </div>
+          <div class="card">
+            <h3>Background Removed</h3>
+            <img id="bgRemovedImg" alt="Background removed image" />
+          </div>
+        </div>
+
+        <div class="tabs-header">
+          <button class="tab-btn active" data-theme="luxury">Luxury</button>
+          <button class="tab-btn" data-theme="minimal">Minimal</button>
+          <button class="tab-btn" data-theme="festive">Festive</button>
+        </div>
+
+        <div id="themeContainer"></div>
+
+        <div class="meta-box top-space">
+          <a id="viewCampaignBtn" class="primary-link" href="#">Open Saved Campaign</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
