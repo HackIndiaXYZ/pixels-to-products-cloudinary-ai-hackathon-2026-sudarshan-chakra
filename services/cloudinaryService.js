@@ -46,11 +46,12 @@ function buildAdUrl(publicId, prompt, width, height) {
   });
 }
 
-// Build a standard smart crop fallback URL
-function buildSmartCropUrl(publicId, width, height) {
+// Build a generative AI background URL
+function buildAdUrl(publicId, prompt, width, height) {
   return cloudinary.url(publicId, {
     secure: true,
     transformation: [
+      { effect: `gen_background_replace:prompt_${prompt}` },
       { width, height, crop: 'fill', gravity: 'auto' },
       { fetch_format: 'auto', quality: 'auto' }
     ]
