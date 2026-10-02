@@ -1,6 +1,7 @@
 let selectedFile = null;
 let currentAssets = null;
 let currentTheme = 'luxury';
+let currentBgRemovedApplied = false;
 
 const imageInput = document.getElementById('imageInput');
 const imagePreview = document.getElementById('imagePreview');
@@ -94,6 +95,7 @@ generateBtn.addEventListener('click', async () => {
 
     currentAssets = data.assets;
     currentTheme = 'luxury';
+    currentBgRemovedApplied = !!data.bgRemovedApplied;
 
     renderSummaryCard(data.metadata);
     renderPipeline(data.pipeline);
@@ -106,6 +108,7 @@ generateBtn.addEventListener('click', async () => {
     originalImg.src = data.metadata.originalImage;
     bgRemovedImg.src = data.assets.bgRemoved;
 
+    updateBgRemovedCardTitle(currentBgRemovedApplied);
     renderTheme(currentTheme);
 
     if (data.campaignId) {
@@ -174,7 +177,8 @@ function renderSummaryCard(metadata) {
     <h3>Campaign Summary</h3>
     <p><strong>Public ID:</strong> ${metadata.publicId}</p>
     <p><strong>Preset:</strong> ${metadata.preset}</p>
-    <p><strong>Moderation:</strong> ${metadata.moderationStatus}</p>
+    <p><strong>Moderation:</strong> ${formatModerationLabel(metadata.moderationStatus)}</p>
+    <p><strong>Processing Mode:</strong> ${metadata.processingMode || 'Unknown'}</p>
     <p><strong>Variants:</strong> ${metadata.totalVariants}</p>
     <p><strong>Created:</strong> ${new Date(metadata.createdAt).toLocaleString()}</p>
   `;
@@ -207,11 +211,14 @@ function renderMetadata(metadata) {
     <p><strong>Dimensions:</strong> ${metadata.width || '-'} x ${metadata.height || '-'}</p>
     <p><strong>Created:</strong> ${new Date(metadata.createdAt).toLocaleString()}</p>
     <p><strong>Total Variants:</strong> ${metadata.totalVariants}</p>
+    <p><strong>Processing Mode:</strong> ${metadata.processingMode || 'Unknown'}</p>
   `;
 }
 
 // Render auto-generated tags
 function renderTags(tags) {
+  tagsContainer.innerHTML = '';
+
   if (!tags.length) {
     const span = document.createElement('span');
     span.className = 'tag';
@@ -230,6 +237,8 @@ function renderTags(tags) {
 
 // Render suggested prompt chips
 function renderSuggestedPrompts(prompts) {
+  suggestedPrompts.innerHTML = '';
+
   prompts.forEach((prompt) => {
     const button = document.createElement('button');
     button.className = 'suggestion-chip';
@@ -244,7 +253,7 @@ function renderSuggestedPrompts(prompts) {
 
 // Update moderation badge style and text
 function updateModerationBadge(status) {
-  moderationBadge.textContent = status || 'unknown';
+  moderationBadge.textContent = formatModerationLabel(status);
   moderationBadge.className = 'status-badge';
 
   if (status === 'approved') moderationBadge.classList.add('approved');
@@ -252,6 +261,30 @@ function updateModerationBadge(status) {
   else if (status === 'rejected') moderationBadge.classList.add('rejected');
   else if (status === 'error') moderationBadge.classList.add('error');
   else moderationBadge.classList.add('neutral');
+}
+
+// Convert raw moderation codes into human-friendly labels
+function formatModerationLabel(status) {
+  if (status === 'approved') return 'Approved';
+  if (status === 'pending') return 'Pending Review';
+  if (status === 'rejected') return 'Rejected';
+  if (status === 'unavailable') return 'AI Add-on Unavailable';
+  if (status === 'error') return 'Error';
+  return status || 'Unknown';
+}
+
+// Update the background removal card title based on actual processing state
+function updateBgRemovedCardTitle(applied) {
+  const titles = document.querySelectorAll('.card h3');
+
+  titles.forEach((title) => {
+    if (
+      title.textContent === 'Background Removed' ||
+      title.textContent === 'Original Image Fallback'
+    ) {
+      title.textContent = applied ? 'Background Removed' : 'Original Image Fallback';
+    }
+  });
 }
 
 // Render one theme pack at a time
