@@ -39,7 +39,7 @@ function buildAdUrl(publicId, prompt, width, height) {
   return cloudinary.url(publicId, {
     secure: true,
     transformation: [
-      { effect: `gen_background:prompt_${prompt}` },
+      { effect: `gen_background_replace:prompt_${prompt}` },
       { width, height, crop: 'fill', gravity: 'auto' },
       { fetch_format: 'auto', quality: 'auto' }
     ]
