@@ -1,6 +1,8 @@
 const cloudinary = require('../config/cloudinary');
 
-// Upload an image with Cloudinary AI features
+// =====================================================
+// UPLOAD WITH CLOUDINARY AI
+// =====================================================
 async function uploadWithAI(dataURI, preset, basePrompt) {
   return cloudinary.uploader.upload(dataURI, {
     folder: 'adcraft_ai_campaigns/raw',
@@ -13,19 +15,23 @@ async function uploadWithAI(dataURI, preset, basePrompt) {
     // Cloudinary AI Moderation
     moderation: 'aws_rek',
 
-    // These are AdCraft's own tags, NOT AI-generated tags
+    // These are STATIC AdCraft tags.
+    // They are NOT counted as AI-generated tags.
     tags: [
       'adcraft-ai',
       'product-upload',
       `preset-${preset}`
     ],
 
-    context: `alt=${basePrompt}|caption=AdCraft AI campaign asset`
+    context:
+      `alt=${basePrompt}|caption=AdCraft AI campaign asset`
   });
 }
 
 
-// Safe fallback upload without optional AI add-ons
+// =====================================================
+// FALLBACK UPLOAD
+// =====================================================
 async function uploadBasic(dataURI, preset, basePrompt) {
   return cloudinary.uploader.upload(dataURI, {
     folder: 'adcraft_ai_campaigns/raw',
@@ -37,12 +43,15 @@ async function uploadBasic(dataURI, preset, basePrompt) {
       `preset-${preset}`
     ],
 
-    context: `alt=${basePrompt}|caption=AdCraft AI campaign asset`
+    context:
+      `alt=${basePrompt}|caption=AdCraft AI campaign asset`
   });
 }
 
 
-// Background removal
+// =====================================================
+// BACKGROUND REMOVAL
+// =====================================================
 function buildBgRemovedUrl(publicId) {
   return cloudinary.url(publicId, {
     secure: true,
@@ -59,13 +68,21 @@ function buildBgRemovedUrl(publicId) {
 }
 
 
-// Generative background replacement
-function buildAdUrl(publicId, prompt, width, height) {
+// =====================================================
+// GENERATIVE BACKGROUND
+// =====================================================
+function buildAdUrl(
+  publicId,
+  prompt,
+  width,
+  height
+) {
   return cloudinary.url(publicId, {
     secure: true,
     transformation: [
       {
-        effect: `gen_background_replace:prompt_${prompt}`
+        effect:
+          `gen_background_replace:prompt_${prompt}`
       },
       {
         width,
@@ -82,8 +99,14 @@ function buildAdUrl(publicId, prompt, width, height) {
 }
 
 
-// Normal smart-crop fallback
-function buildSmartCropUrl(publicId, width, height) {
+// =====================================================
+// SMART CROP FALLBACK
+// =====================================================
+function buildSmartCropUrl(
+  publicId,
+  width,
+  height
+) {
   return cloudinary.url(publicId, {
     secure: true,
     transformation: [
@@ -102,7 +125,9 @@ function buildSmartCropUrl(publicId, width, height) {
 }
 
 
-// Search Cloudinary assets
+// =====================================================
+// CLOUDINARY SEARCH
+// =====================================================
 async function searchAssets(expression) {
   return cloudinary.search
     .expression(expression)
