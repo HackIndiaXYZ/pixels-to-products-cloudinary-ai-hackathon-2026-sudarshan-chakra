@@ -64,17 +64,24 @@ async function generateCampaign(req, res) {
     let uploadResult;
     let moderationStatus = 'unavailable';
     let autoTags = [];
+    let processingMode = 'Fallback Processing';
+    let bgRemovedApplied = false;
 
     // Try using Cloudinary AI add-ons first
     try {
       uploadResult = await uploadWithAI(dataURI, preset, basePrompt);
       moderationStatus = uploadResult.moderation?.[0]?.status || 'approved';
       autoTags = uploadResult.tags || [];
+      processingMode = 'AI Enhanced Processing';
+
       pipeline.uploaded = true;
       pipeline.moderated = moderationStatus !== 'unavailable';
       pipeline.tagged = autoTags.length > 0;
     } catch (error) {
-      warnings.push('AI moderation or auto-tagging was unavailable. Basic upload fallback was used.');
+      warnings.push(
+        'Advanced moderation and auto-tagging add-ons were not available in the current Cloudinary environment, so the pipeline switched to fallback-safe upload mode.'
+      );
+
       uploadResult = await uploadBasic(dataURI, preset, basePrompt);
       pipeline.uploaded = true;
     }
@@ -90,13 +97,19 @@ async function generateCampaign(req, res) {
       });
     }
 
+    // Use preset-based fallback tags if AI tags are unavailable
+    if (!autoTags.length) {
+      autoTags = [preset, 'product', 'campaign-asset'];
+    }
+
     // Try background removal
     let bgRemovedUrl = uploadResult.secure_url;
     try {
       bgRemovedUrl = buildBgRemovedUrl(publicId);
       pipeline.backgroundRemoved = true;
+      bgRemovedApplied = true;
     } catch (error) {
-      warnings.push('Background removal was unavailable. Original image is used instead.');
+      warnings.push('Background removal was unavailable, so the original product image is being used as a fallback preview.');
     }
 
     // Build one themed asset group with safe fallback
@@ -105,7 +118,7 @@ async function generateCampaign(req, res) {
         try {
           return buildAdUrl(publicId, prompt, width, height);
         } catch (error) {
-          warnings.push(`Generative background fallback used for ${width}x${height}.`);
+          warnings.push(`Generative background was unavailable for ${width}x${height}, so smart crop fallback was used.`);
           return buildSmartCropUrl(publicId, width, height);
         }
       }
@@ -127,7 +140,7 @@ async function generateCampaign(req, res) {
     pipeline.generated = true;
     pipeline.optimized = true;
 
-    const suggestedPrompts = getSuggestedPromptsFromTags(autoTags);
+    const suggestedPrompts = getSuggestedPromptsFromTags(autoTags, preset);
 
     // Save the generated campaign into MongoDB
     const campaign = await Campaign.create({
@@ -164,12 +177,14 @@ async function generateCampaign(req, res) {
         format: campaign.metadata.format,
         width: campaign.metadata.width,
         height: campaign.metadata.height,
-        totalVariants: campaign.metadata.totalVariants
+        totalVariants: campaign.metadata.totalVariants,
+        processingMode
       },
       warnings: campaign.warnings,
       pipeline: campaign.pipeline,
       assets: campaign.assets,
-      suggestedPrompts
+      suggestedPrompts,
+      bgRemovedApplied
     });
   } catch (error) {
     console.error('Generate Campaign Error:', {
