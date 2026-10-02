@@ -26,9 +26,10 @@ function getThemePrompts(basePrompt) {
   };
 }
 
-// Generate helpful prompt suggestions based on AI-generated tags
-function getSuggestedPromptsFromTags(tags = []) {
+// Generate prompt suggestions from tags and preset
+function getSuggestedPromptsFromTags(tags = [], preset = 'custom') {
   const lowerTags = tags.map((tag) => tag.toLowerCase());
+  const cleanPreset = (preset || 'custom').toLowerCase();
 
   if (lowerTags.some((tag) => ['cosmetic', 'skincare', 'beauty', 'bottle'].includes(tag))) {
     return [
@@ -59,6 +60,47 @@ function getSuggestedPromptsFromTags(tags = []) {
       'sleek futuristic tech desk with blue glow',
       'modern electronics ad with reflective surface',
       'minimal black technology showcase'
+    ];
+  }
+
+  // Fallback suggestions based on preset when AI tags are unavailable
+  if (cleanPreset === 'fashion') {
+    return [
+      'luxury fashion campaign with bold shadows',
+      'minimal apparel studio backdrop',
+      'premium retail editorial ad scene'
+    ];
+  }
+
+  if (cleanPreset === 'beauty') {
+    return [
+      'soft skincare shelf with warm daylight',
+      'minimal beauty studio in white tones',
+      'premium cosmetic marble setup'
+    ];
+  }
+
+  if (cleanPreset === 'electronics') {
+    return [
+      'sleek futuristic tech desk with blue glow',
+      'minimal black electronics showcase',
+      'premium reflective product launch setup'
+    ];
+  }
+
+  if (cleanPreset === 'food') {
+    return [
+      'fresh product showcase with vibrant food styling',
+      'minimal tabletop packaging ad',
+      'bright promotional food campaign scene'
+    ];
+  }
+
+  if (cleanPreset === 'jewelry') {
+    return [
+      'luxury jewelry display with dark reflections',
+      'minimal premium accessory setup',
+      'elegant showcase with metallic highlights'
     ];
   }
 
