@@ -838,12 +838,11 @@ Suggested screenshots:
 
 Example:
 
-``` md
+
 ![Create Page](./screenshots/create-page.png)
 ![Generated Results](./screenshots/generated-results.png)
 ![History Dashboard](./screenshots/history-page.png)
 ![Asset Search](./screenshots/assets-page.png)
-```
 
 ------------------------------------------------------------------------
 
